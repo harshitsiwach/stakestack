@@ -34,10 +34,144 @@ const hexToRgb = (hex: string): [number, number, number] => {
   return [r, g, b];
 };
 
+// Define a single cube geometry that will be replicated at each particle position
+// For a more pixelated appearance, we can make the cubes more distinct and vibrant
+const createCubeGeometry = (gl: any, particleCount: number, particleSpread: number, particleBaseSize: number, particleColors: string[] | undefined) => {
+  // Define cube vertices with sharper, more pixel-like appearance
+  const cubeVertices = new Float32Array([
+    // Front face
+    -0.5, -0.5,  0.5,
+     0.5, -0.5,  0.5,
+     0.5,  0.5,  0.5,
+    -0.5,  0.5,  0.5,
+    // Back face
+    -0.5, -0.5, -0.5,
+    -0.5,  0.5, -0.5,
+     0.5,  0.5, -0.5,
+     0.5, -0.5, -0.5,
+    // Top face
+    -0.5,  0.5, -0.5,
+    -0.5,  0.5,  0.5,
+     0.5,  0.5,  0.5,
+     0.5,  0.5, -0.5,
+    // Bottom face
+    -0.5, -0.5, -0.5,
+     0.5, -0.5, -0.5,
+     0.5, -0.5,  0.5,
+    -0.5, -0.5,  0.5,
+    // Right face
+     0.5, -0.5, -0.5,
+     0.5,  0.5, -0.5,
+     0.5,  0.5,  0.5,
+     0.5, -0.5,  0.5,
+    // Left face
+    -0.5, -0.5, -0.5,
+    -0.5, -0.5,  0.5,
+    -0.5,  0.5,  0.5,
+    -0.5,  0.5, -0.5
+  ]);
+
+  const cubeIndices = new Uint16Array([
+    // Front face
+    0, 1, 2, 0, 2, 3,
+    // Back face
+    4, 5, 6, 4, 6, 7,
+    // Top face
+    8, 9, 10, 8, 10, 11,
+    // Bottom face
+    12, 13, 14, 12, 14, 15,
+    // Right face
+    16, 17, 18, 16, 18, 19,
+    // Left face
+    20, 21, 22, 20, 22, 23
+  ]);
+
+  // Generate particle positions
+  const positions = new Float32Array(particleCount * 3);
+  const randoms = new Float32Array(particleCount * 4);
+  const colors = new Float32Array(particleCount * 3);
+  const totalVertices = particleCount * 24;
+  const finalPositions = new Float32Array(totalVertices * 3);
+  const finalRandoms = new Float32Array(totalVertices * 4);
+  const finalColors = new Float32Array(totalVertices * 3);
+  const finalCubeVertices = new Float32Array(totalVertices * 3);
+
+  // Create particle instances data
+  for (let i = 0; i < particleCount; i++) {
+    let x: number, y: number, z: number, len: number;
+    do {
+      x = Math.random() * 2 - 1;
+      y = Math.random() * 2 - 1;
+      z = Math.random() * 2 - 1;
+      len = x * x + y * y + z * z;
+    } while (len > 1 || len === 0);
+    const r = Math.cbrt(Math.random());
+    positions.set([x * r * particleSpread, y * r * particleSpread, z * r * particleSpread], i * 3);
+    randoms.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
+    
+    // Use vibrant, pixel-style colors from the specified palette or default
+    const palette = particleColors && particleColors.length > 0 ? particleColors : defaultColors;
+    const col = hexToRgb(palette[Math.floor(Math.random() * palette.length)]);
+    colors.set(col, i * 3);
+  }
+
+  // Now replicate the data for each cube's vertices
+  for (let i = 0; i < particleCount; i++) {
+    const particlePos = [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]];
+    const particleRandom = [randoms[i * 4], randoms[i * 4 + 1], randoms[i * 4 + 2], randoms[i * 4 + 3]];
+    const particleColor = [colors[i * 3], colors[i * 3 + 1], colors[i * 3 + 2]];
+    
+    for (let j = 0; j < 24; j++) { // 24 vertices per cube
+      const vertexIdx = i * 24 + j;
+      
+      // Cube vertex positions relative to cube center - adjust size for more pixelated look
+      finalCubeVertices[vertexIdx * 3] = cubeVertices[j * 3] * particleBaseSize * 0.0001; // Made cubes even smaller
+      finalCubeVertices[vertexIdx * 3 + 1] = cubeVertices[j * 3 + 1] * particleBaseSize * 0.0001;
+      finalCubeVertices[vertexIdx * 3 + 2] = cubeVertices[j * 3 + 2] * particleBaseSize * 0.0001;
+      
+      // Final world position (cube vertex + particle position)
+      finalPositions[vertexIdx * 3] = finalCubeVertices[vertexIdx * 3] + particlePos[0];
+      finalPositions[vertexIdx * 3 + 1] = finalCubeVertices[vertexIdx * 3 + 1] + particlePos[1];
+      finalPositions[vertexIdx * 3 + 2] = finalCubeVertices[vertexIdx * 3 + 2] + particlePos[2];
+      
+      // Random values for this particle
+      finalRandoms[vertexIdx * 4] = particleRandom[0];
+      finalRandoms[vertexIdx * 4 + 1] = particleRandom[1];
+      finalRandoms[vertexIdx * 4 + 2] = particleRandom[2];
+      finalRandoms[vertexIdx * 4 + 3] = particleRandom[3];
+      
+      // Color for this particle
+      finalColors[vertexIdx * 3] = particleColor[0];
+      finalColors[vertexIdx * 3 + 1] = particleColor[1];
+      finalColors[vertexIdx * 3 + 2] = particleColor[2];
+    }
+  }
+
+  // Create indices for all cubes
+  const allIndices: number[] = [];
+  for (let i = 0; i < particleCount; i++) {
+    const baseIndex = i * 24;
+    for (const index of cubeIndices) {
+      allIndices.push(baseIndex + index);
+    }
+  }
+
+  const geometry = new Geometry(gl, {
+    position: { size: 3, data: finalPositions },
+    random: { size: 4, data: finalRandoms },
+    color: { size: 3, data: finalColors },
+    cubeVertex: { size: 3, data: finalCubeVertices }, // Cube shape vertices
+    index: { data: new Uint16Array(allIndices) }
+  });
+
+  return geometry;
+};
+
 const vertex = /* glsl */ `
   attribute vec3 position;
   attribute vec4 random;
   attribute vec3 color;
+  attribute vec3 cubeVertex; // The actual cube vertex relative to its center
   
   uniform mat4 modelMatrix;
   uniform mat4 viewMatrix;
@@ -45,7 +179,6 @@ const vertex = /* glsl */ `
   uniform float uTime;
   uniform float uSpread;
   uniform float uBaseSize;
-  uniform float uSizeRandomness;
   
   varying vec4 vRandom;
   varying vec3 vColor;
@@ -54,25 +187,17 @@ const vertex = /* glsl */ `
     vRandom = random;
     vColor = color;
     
-    vec3 pos = position * uSpread;
-    pos.z *= 10.0;
+    // Use the cube vertex as offset from the original position
+    vec3 pos = position + cubeVertex;
     
     vec4 mPos = modelMatrix * vec4(pos, 1.0);
     float t = uTime;
+    // Animate based on the particle's random values
     mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
     mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);
     mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.1, 1.5, random.z);
     
-    vec4 mvPos = viewMatrix * mPos;
-
-    if (uSizeRandomness == 0.0) {
-      gl_PointSize = uBaseSize;
-    } else {
-      gl_PointSize = (uBaseSize * (1.0 + uSizeRandomness * (random.x - 0.5))) / length(mvPos.xyz);
-    }
-    
-    gl_Position = projectionMatrix * mvPos;
-    gl_Position = projectionMatrix * mvPos;
+    gl_Position = projectionMatrix * viewMatrix * mPos;
   }
 `;
 
@@ -80,23 +205,20 @@ const fragment = /* glsl */ `
   precision highp float;
   
   uniform float uTime;
-  uniform float uAlphaParticles;
   varying vec4 vRandom;
   varying vec3 vColor;
   
   void main() {
-    vec2 uv = gl_PointCoord.xy;
-    float d = length(uv - vec2(0.5));
+    // More pixelated appearance with solid colors and subtle pulsing effect
+    vec3 color = vColor;
+    // Add some subtle animation to make cubes feel alive but still pixel-like
+    float pulse = 0.1 * sin(uTime * 2.0 + vRandom.x * 10.0);
+    color += pulse;
     
-    if(uAlphaParticles < 0.5) {
-      if(d > 0.5) {
-        discard;
-      }
-      gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), 1.0);
-    } else {
-      float circle = smoothstep(0.5, 0.4, d) * 0.8;
-      gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), circle);
-    }
+    // Clamp color values to maintain pixelated look
+    color = clamp(color, 0.0, 1.0);
+    
+    gl_FragColor = vec4(color, 1.0);
   }
 `;
 
@@ -109,7 +231,7 @@ const Particles: React.FC<ParticlesProps> = ({
   particleHoverFactor = 1,
   alphaParticles = false,
   particleBaseSize = 100,
-  sizeRandomness = 1,
+  sizeRandomness = 1, // Not used in cube version but kept for compatibility
   cameraDistance = 20,
   disableRotation = false,
   className
@@ -121,7 +243,7 @@ const Particles: React.FC<ParticlesProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
-    const renderer = new Renderer({ depth: false, alpha: true });
+    const renderer = new Renderer({ depth: true, alpha: true }); // Enable depth for 3D cubes
     const gl = renderer.gl;
     container.appendChild(gl.canvas);
     gl.clearColor(0, 0, 0, 0);
@@ -149,32 +271,7 @@ const Particles: React.FC<ParticlesProps> = ({
       container.addEventListener('mousemove', handleMouseMove);
     }
 
-    const count = particleCount;
-    const positions = new Float32Array(count * 3);
-    const randoms = new Float32Array(count * 4);
-    const colors = new Float32Array(count * 3);
-    const palette = particleColors && particleColors.length > 0 ? particleColors : defaultColors;
-
-    for (let i = 0; i < count; i++) {
-      let x: number, y: number, z: number, len: number;
-      do {
-        x = Math.random() * 2 - 1;
-        y = Math.random() * 2 - 1;
-        z = Math.random() * 2 - 1;
-        len = x * x + y * y + z * z;
-      } while (len > 1 || len === 0);
-      const r = Math.cbrt(Math.random());
-      positions.set([x * r, y * r, z * r], i * 3);
-      randoms.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
-      const col = hexToRgb(palette[Math.floor(Math.random() * palette.length)]);
-      colors.set(col, i * 3);
-    }
-
-    const geometry = new Geometry(gl, {
-      position: { size: 3, data: positions },
-      random: { size: 4, data: randoms },
-      color: { size: 3, data: colors }
-    });
+    const geometry = createCubeGeometry(gl, particleCount, particleSpread, particleBaseSize, particleColors);
 
     const program = new Program(gl, {
       vertex,
@@ -182,15 +279,13 @@ const Particles: React.FC<ParticlesProps> = ({
       uniforms: {
         uTime: { value: 0 },
         uSpread: { value: particleSpread },
-        uBaseSize: { value: particleBaseSize },
-        uSizeRandomness: { value: sizeRandomness },
-        uAlphaParticles: { value: alphaParticles ? 1 : 0 }
+        uBaseSize: { value: particleBaseSize }
       },
       transparent: true,
-      depthTest: false
+      depthTest: true // Enable depth testing for proper 3D cube rendering
     });
 
-    const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
+    const particles = new Mesh(gl, { mode: gl.TRIANGLES, geometry, program });
 
     let animationFrameId: number;
     let lastTime = performance.now();

@@ -30,13 +30,13 @@ export interface CubesProps {
 
 const Cubes: React.FC<CubesProps> = ({
   gridSize = 10,
-  cubeSize,
+  cubeSize = 30, // Set a default smaller size
   maxAngle = 45,
   radius = 3,
   easing = 'power3.out',
   duration = { enter: 0.3, leave: 0.6 },
   cellGap,
-  borderStyle = '1px solid #fff',
+  borderStyle = '1px dotted #fff', // Changed to dotted
   faceColor = '#060010',
   shadow = false,
   autoAnimate = true,
@@ -290,11 +290,11 @@ const Cubes: React.FC<CubesProps> = ({
   const wrapperStyle = {
     '--cube-face-border': borderStyle,
     '--cube-face-bg': faceColor,
-    '--cube-face-shadow': shadow === true ? '0 0 6px rgba(0,0,0,.5)' : shadow || 'none',
+    '--cube-face-shadow': shadow === true ? '0 0 2px rgba(255,255,255,0.3)' : shadow || 'none', // Reduced shadow/glow
     ...(cubeSize
       ? {
-          width: `${gridSize * cubeSize}px`,
-          height: `${gridSize * cubeSize}px`
+          width: `${gridSize * (cubeSize || 30)}px`, // Changed default size to smaller
+          height: `${gridSize * (cubeSize || 30)}px`
         }
       : {})
   } as React.CSSProperties;

@@ -1,8 +1,9 @@
 import Particles from "@/components/Particles";
 import Cubes from "@/components/Cubes";
-import SplitText from "@/components/SplitText";
+import Shuffle from "@/components/Shuffle";
 import TargetCursor from "@/components/TargetCursor";
 import TrueFocus from "@/components/TrueFocus";
+import SocialIcons from "@/components/SocialIcons";
 import Link from "next/link";
 
 export default function Home() {
@@ -17,9 +18,9 @@ export default function Home() {
         refresh
       />
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <SplitText text="Stake, Stack!" tag="h1" className="text-6xl font-bold text-white mb-8 cursor-target" />
+        <Shuffle text="Stake, Stack!" tag="h1" className="text-white mb-8 cursor-target" />
         <div className="cursor-target">
-          <Cubes gridSize={3} cubeSize={50} faceColor={"rgba(255, 255, 255, 0.8)"} shadow={'0 0 10px rgba(255, 255, 255, 0.8)'} />
+          <Cubes gridSize={3} cubeSize={30} faceColor={"rgba(255, 255, 255, 0.8)"} shadow={'0 0 3px rgba(255, 255, 255, 0.5)'} />
         </div>
         <div className="mt-16">
           <Link href="/play">
@@ -27,8 +28,13 @@ export default function Home() {
           </Link>
         </div>
       </div>
-      <div className="absolute bottom-10 w-full flex justify-center">
+      <div className="absolute bottom-10 w-full flex flex-col items-center">
         <TrueFocus sentence="Stack. Stake. Dominate." manualMode={true} borderColor={"#ffffff"} glowColor={"rgba(255, 255, 255, 0.8)"} fontSize="1.5rem" />
+      </div>
+      
+      {/* Social Icons in bottom right */}
+      <div className="absolute bottom-6 right-6 z-10">
+        <SocialIcons />
       </div>
     </div>
   );

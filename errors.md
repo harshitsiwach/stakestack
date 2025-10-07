@@ -1,25 +1,21 @@
 ## Error Type
-Build Error
+Runtime ReferenceError
 
 ## Error Message
-Ecmascript file had an error
+particleColors is not defined
 
-## Build Output
-./src/components/Particles.tsx:1:17
-Ecmascript file had an error
-> 1 | import React, { useEffect, useRef } from 'react';
-    |                 ^^^^^^^^^
-  2 | import { Renderer, Camera, Geometry, Program, Mesh } from 'ogl';
-  3 |
-  4 | interface ParticlesProps {
 
-You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+    at createCubeGeometry (src/components/Particles.tsx:113:21)
+    at Particles.useEffect (src/components/Particles.tsx:274:22)
+    at Home (src/app/page.tsx:13:7)
 
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-Import trace:
-  Server Component:
-    ./src/components/Particles.tsx
-    ./src/app/page.tsx
+## Code Frame
+  111 |     
+  112 |     // Use vibrant, pixel-style colors from the specified palette or default
+> 113 |     const palette = particleColors && particleColors.length > 0 ? particleColors : defaultColors;
+      |                     ^
+  114 |     const col = hexToRgb(palette[Math.floor(Math.random() * palette.length)]);
+  115 |     colors.set(col, i * 3);
+  116 |   }
 
 Next.js version: 15.5.4 (Turbopack)
