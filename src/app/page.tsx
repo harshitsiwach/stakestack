@@ -12,10 +12,9 @@ export default function Home() {
       <TargetCursor />
       <Particles
         className="absolute inset-0 z-0"
-        quantity={500}
-        ease={80}
-        color={"#ffffff"}
-        refresh
+        particleCount={500}
+        speed={0.8}
+        particleColors={["#ffffff"]}
       />
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <Shuffle text="Stake, Stack!" tag="h1" className="text-white mb-8 cursor-target" />
