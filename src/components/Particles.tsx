@@ -191,7 +191,7 @@ const vertex = /* glsl */ `
     vec3 pos = position + cubeVertex;
     
     vec4 mPos = modelMatrix * vec4(pos, 1.0);
-    float t = uTime;
+    float t = uTime * 0.02; // Slowed down the movement significantly
     // Animate based on the particle's random values
     mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
     mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);

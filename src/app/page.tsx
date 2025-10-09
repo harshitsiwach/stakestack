@@ -22,7 +22,7 @@ export default function Home() {
           <Cubes gridSize={3} cubeSize={30} faceColor={"rgba(255, 255, 255, 0.8)"} shadow={'0 0 3px rgba(255, 255, 255, 0.5)'} />
         </div>
         <div className="mt-16">
-          <Link href="/play">
+          <Link href="https://play.stakestack.fun">
             <TrueFocus sentence="PLAY" manualMode={true} borderColor={"#ffffff"} glowColor={"rgba(255, 255, 255, 0.8)"} />
           </Link>
         </div>

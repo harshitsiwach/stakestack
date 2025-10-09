@@ -5,7 +5,7 @@ const SocialIcons = () => {
     <div className="flex flex-col space-y-4">
       {/* X Icon */}
       <a 
-        href="https://x.com" 
+        href="https://x.com/rupturelabs" 
         target="_blank" 
         rel="noopener noreferrer"
         className="cursor-target transition-opacity hover:opacity-70 p-2 rounded-full hover:bg-gray-800"
@@ -31,7 +31,7 @@ const SocialIcons = () => {
 
       {/* Telegram Icon */}
       <a 
-        href="https://t.me" 
+        href="https://t.me/rupturelabscommunity" 
         target="_blank" 
         rel="noopener noreferrer"
         className="cursor-target transition-opacity hover:opacity-70 p-2 rounded-full hover:bg-gray-800"
@@ -56,7 +56,7 @@ const SocialIcons = () => {
 
       {/* Discord Icon */}
       <a 
-        href="https://discord.com" 
+        href="https://discord.gg/ajvyCjsbfH" 
         target="_blank" 
         rel="noopener noreferrer"
         className="cursor-target transition-opacity hover:opacity-70 p-2 rounded-full hover:bg-gray-800"

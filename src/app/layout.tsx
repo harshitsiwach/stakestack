@@ -19,8 +19,11 @@ const pressStart2p = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: "StakeNext App",
-  description: "Next.js app with animated particle background",
+  title: "Stake, Stack!",
+  description: "Gaming platform with pixelated theme",
+  icons: {
+    icon: '/stakestacklogo.png',
+  },
 };
 
 export default function RootLayout({
